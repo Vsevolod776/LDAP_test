@@ -30,8 +30,7 @@ def createQueryForAdd(file_name, script_file, count, size):
             f"sAMAccountName: user_{i}",
              "userAccountControl: 512",
              f"mail: user_{i}@{Domain}"
-             "unicodePwd:: " + base64.b64encode(f'"{UserPass}"'.encode('UTF-16LE')).decode('UTF-8'),
-             "\n"
+             "unicodePwd:: " + base64.b64encode(f'"{UserPass}"'.encode('UTF-16LE')).decode('UTF-8')
         ]
         file.write("\n".join(ldif))
     file.close()
@@ -45,12 +44,11 @@ def createQueryForDelete(file_name, script_file, count, size):
     for i in range(count, count + size):
         ldif = [
             f"dn: CN=user_{i},{domain_dn}",
-            "changetype: delete",
-            "\n"
+            "changetype: delete"
         ]
         file.write("\n".join(ldif))
     file.close()
-    script_file.write("time ldbadd -H ldap://192.168.40.19 -U administrator --password=qqqwww12! " + file_name + "_delete.ldif"+"\n")
+    script_file.write("time ldapdelete -H ldap://192.168.40.19 -x -D \"CN=administrator,CN=Users,DC=example,DC=tst\" -f " + file_name + "_delete.ldif -w qqqwww12! \n" )
     print("\nFile for delete users - done!")
 
 
@@ -63,12 +61,11 @@ def createQueryForUpdate(file_name, script_file, count, size):
             f"dn: CN=user_{i},{domain_dn}",
             "changetype: modify",
             "replace: mail",
-            f"mail: user{i}@{Domain}.mod",
-            "\n"
+            f"mail: user{i}@{Domain}.mod"
         ]
         file.write("\n".join(ldif))
     file.close()
-    script_file.write("time ldbadd -H ldap://192.168.40.19 -U administrator --password=qqqwww12! " + file_name + "_update.ldif"+"\n")
+    script_file.write("time ldapmodify -H ldap://192.168.40.19 -x -D \"CN=administrator,CN=Users,DC=example,DC=tst\" -f" + file_name + "_update.ldif -w qqqwww12! \n")
     print("\nFile for delete users - done!")
 
 #=================Script================#
