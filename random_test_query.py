@@ -51,8 +51,8 @@ def createQueryForAdd(file_name, script_file, count, size):
         randomAttribute( ldif, i )
         file.write("\n".join(ldif))
     file.close()
-    script_file.write("{ time ldbadd -H ldap://192.168.40.19 -U administrator --password=qqqwww12! " + file_name + "_add.ldif } > result_add_data.txt\n")
-    script_file.write(f"echo \"{file_name} is done!\" > result_add_data.txt\n")
+    script_file.write("{ time ldbadd -H ldap://192.168.40.19 -U administrator --password=qqqwww12! " + file_name + "_add.ldif; } 2>> result_add_data.txt\n")
+    script_file.write(f"echo \"{file_name} is done!\" >> result_add_data.txt\n")
     print(f"\nFile {file_name}_add.ldif - done!")
         
 #======================Delete======================#
@@ -66,8 +66,8 @@ def createQueryForDelete(file_name, script_file, count, size):
         ]
         file.write("\n".join(ldif))
     file.close()
-    script_file.write("{ time ldapmodify -H ldap://192.168.40.19 -x -D \"CN=administrator,CN=Users,DC=example,DC=tst\" -f " + file_name + "_delete.ldif > /dev/null -w qqqwww12! } > result_delete_data.txt\n" )
-    script_file.write(f"echo \"{file_name} is done!\" > result_delete_data.txt\n")
+    script_file.write("{ time ldapmodify -H ldap://192.168.40.19 -x -D \"CN=administrator,CN=Users,DC=example,DC=tst\" -w qqqwww12! -f " + file_name + "_delete.ldif > /dev/null; } 2>> result_delete_data.txt\n" )
+    script_file.write(f"echo \"{file_name} is done!\" >> result_delete_data.txt\n")
     print(f"\nFile {file_name}_delete.ldif - done!")
 
 #=======================Update====================#
@@ -83,7 +83,7 @@ def createQueryForUpdate(file_name, script_file, count, size):
         ]
         file.write("\n".join(ldif))
     file.close()
-    script_file.write("{ time ldapmodify -H ldap://192.168.40.19 -x -D \"CN=administrator,CN=Users,DC=example,DC=tst\" -f " + file_name + "_update.ldif > /dev/null -w qqqwww12! } > result_update_data.txt\n")
+    script_file.write("{ time ldapmodify -H ldap://192.168.40.19 -x -D \"CN=administrator,CN=Users,DC=example,DC=tst\" -w qqqwww12! -f " + file_name + "_update.ldif > /dev/null; } 2>> result_update_data.txt\n")
     script_file.write(f"echo \"{file_name} is done!\" > result_update_data.txt\n")
     print(f"\nFile {file_name}_update.ldif - done!")
 
