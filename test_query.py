@@ -82,12 +82,13 @@ def createQueryForAdd(file_name, script_file, count, size):
     script_file.write("{ time ldbadd -H ldap://192.168.40.20 -U administrator --password=qqqwww12! " + file_name + "_add.ldif; } 2>> result_add.txt | tr '\\n' ' '\n")
     script_file.write(f"echo \"{file_name} is done!\" >> result_add.txt\n")
     #read
-    script_file.write( f"chmod +x {file_name}_read_after_add.sh\ntime ./{file_name}_read_after_add.sh >> result_add_read.txt\n")
-    script_file.write(f"echo \"{file_name} is done!\" >> result_add_read.txt\n")
+    script_file.write( f"chmod +x {file_name}_read_after_add.sh\n")
+    script_file.write( f"{{ time ./{file_name}_read_after_add.sh 1>/dev/null; }} 2>> result_add_read.txt\n" )
+    script_file.write( f"echo \"{file_name} is done!\" >> result_add_read.txt\n")
     #update
     queryModifyAfterAdd(file_name, script_file, count, size)
     script_file.write("{ time ldapmodify -H ldap://192.168.40.20 -x -D \"CN=administrator,CN=Users,DC=test-example,DC=tst\" -w qqqwww12! -f " + file_name + "_add_update.ldif > /dev/null; } 2>> result_add_update.txt | tr '\\n' ' '\n")
-    script_file.write(f"echo \"{file_name} is done!\" >> result_add_update.txt\n")
+    script_file.write(f"echo \"{file_name} is done!\" >> result_add_update.txt\n\n")
         
 #======================Delete======================#
 
@@ -109,10 +110,11 @@ def createQueryForDelete(file_name, script_file, count, size):
     script_file.write(f"echo \"{file_name} is done!\" >> result_delete_update.txt\n")
     #read
     script_file.write(f"chmod +x {file_name}_read_before_delete.sh\ntime ./{file_name}_read_before_delete.sh >> result_delete_read.txt\n")
+    script_file.write(f"{{ time ./{file_name}_read_before_delete.sh 1>/dev/null; }} 2>> result_delete_read.txt\n")
     script_file.write(f"echo \"{file_name} is done!\" >> result_delete_read.txt\n")
     #delete
     script_file.write("{ time ldapmodify -H ldap://192.168.40.20 -x -D \"CN=administrator,CN=Users,DC=test-example,DC=tst\" -w qqqwww12! -f " + file_name + "_delete.ldif > /dev/null; } 2>> result_delete.txt | tr '\\n' ' '\n" )
-    script_file.write(f"echo \"{file_name} is done!\" >> result_delete.txt\n")
+    script_file.write(f"echo \"{file_name} is done!\" >> result_delete.txt\n\n")
 
 
 #=================Script================#
