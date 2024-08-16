@@ -86,7 +86,7 @@ def createQueryForAdd(file_name, script_file, count, size):
     script_file.write(f"echo \"{file_name} is done!\" >> result_add.txt\n")
     #read
     script_file.write( f"chmod +x {file_name}_read_after_add.sh\n")
-    script_file.write( f"{{ time ./{file_name}_read_after_add.sh 1>/dev/null; }} 2>> result_add_read.txt\n" )
+    script_file.write( f"{{ time ./{file_name}_read_after_add.sh >/dev/null; }} 2>> result_add_read.txt\n" )
     script_file.write( f"echo \"{file_name} is done!\" >> result_add_read.txt\n")
     #update
     queryModifyAfterAdd(file_name, script_file, count, size)
@@ -113,7 +113,7 @@ def createQueryForDelete(file_name, script_file, count, size):
     script_file.write(f"echo \"{file_name} is done!\" >> result_delete_update.txt\n")
     #read
     script_file.write(f"chmod +x {file_name}_read_before_delete.sh\ntime ./{file_name}_read_before_delete.sh >> result_delete_read.txt\n")
-    script_file.write(f"{{ time ./{file_name}_read_before_delete.sh 1>/dev/null; }} 2>> result_delete_read.txt\n")
+    script_file.write(f"{{ time ./{file_name}_read_before_delete.sh >/dev/null; }} 2>> result_delete_read.txt\n")
     script_file.write(f"echo \"{file_name} is done!\" >> result_delete_read.txt\n")
     #delete
     script_file.write(f"{{ time ldapmodify -H ldap://{ip} -x -D \"CN=administrator,CN=Users,DC={DC1},DC={DC2}\" -w qqqwww12! -f " + file_name + "_delete.ldif > /dev/null; } 2>> result_delete.txt | tr '\\n' ' '\n" )
