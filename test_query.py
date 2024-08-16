@@ -1,9 +1,13 @@
 #===========CHANGE==========================================
-Domain    = "test-example.tst"   # Именование домена            =
+#Domain    = "test-example.tst"   # Именование домена            =
 UserPref  = "user_"         # Префикс пользователя         =
 UserPass  = "qqqwww12!"     # Пароль пользователей         =
 FileName  = "users"         # Имя файла                    =
 #===========CHANGE==========================================
+
+Domain = input("Write you domain name:")
+ip = input("Write DC ip:")
+DC1, DC2 = Domain.rsplit('.', 1)
 
 import base64
 
@@ -53,7 +57,6 @@ def queryRead(file_name, script_file, count, size):
     file.close()
 
 #======================Create======================#
-#ldapsearch -H ldap://192.168.40.20 -x -D "CN=administrator,CN=Users,DC=test-example,DC=tst" -w qqqwww12! -b "dc=test-example,dc=tst" "(cn=user_1)"
 def createQueryForAdd(file_name, script_file, count, size):
     file = open(file_name+"_add.ldif", 'w')
     readQuery = open(file_name + "_read_after_add.sh", 'w')
@@ -71,15 +74,15 @@ def createQueryForAdd(file_name, script_file, count, size):
             f"userPrincipalName: user_{i}@{Domain}",
             f"sAMAccountName: user_{i}",
              "userAccountControl: 512",
-             f"mail: user_{i}@{Domain}"
+             f"mail: user_{i}@{Domain}",
              "unicodePwd:: " + base64.b64encode(f'"{UserPass}"'.encode('UTF-16LE')).decode('UTF-8'),
              "\n"
         ]
         file.write("\n".join(ldif))
-        readQuery.write(f"ldapsearch -H ldap://192.168.40.20 -x -D \"CN=administrator,CN=Users,DC=test-example,DC=tst\" -w qqqwww12! -b \"dc=test-example,dc=tst\" \"(cn=user_{i})\"\n")
+        readQuery.write(f"ldapsearch -H ldap://{ip} -x -D \"CN=administrator,CN=Users,DC={DC1},DC={DC2}\" -w qqqwww12! -b \"DC={DC1},DC={DC2}\" \"(cn=user_{i})\"\n")
     file.close()
     #add
-    script_file.write("{ time ldbadd -H ldap://192.168.40.20 -U administrator --password=qqqwww12! " + file_name + "_add.ldif; } 2>> result_add.txt | tr '\\n' ' '\n")
+    script_file.write(f"{{ time ldbadd -H ldap://{ip} -U administrator --password=qqqwww12! " + file_name + "_add.ldif; } 2>> result_add.txt | tr '\\n' ' '\n")
     script_file.write(f"echo \"{file_name} is done!\" >> result_add.txt\n")
     #read
     script_file.write( f"chmod +x {file_name}_read_after_add.sh\n")
@@ -87,7 +90,7 @@ def createQueryForAdd(file_name, script_file, count, size):
     script_file.write( f"echo \"{file_name} is done!\" >> result_add_read.txt\n")
     #update
     queryModifyAfterAdd(file_name, script_file, count, size)
-    script_file.write("{ time ldapmodify -H ldap://192.168.40.20 -x -D \"CN=administrator,CN=Users,DC=test-example,DC=tst\" -w qqqwww12! -f " + file_name + "_add_update.ldif > /dev/null; } 2>> result_add_update.txt | tr '\\n' ' '\n")
+    script_file.write(f"{{ time ldapmodify -H ldap://{ip} -x -D \"CN=administrator,CN=Users,DC={DC1},DC={DC2}\" -w qqqwww12! -f " + file_name + "_add_update.ldif > /dev/null; } 2>> result_add_update.txt | tr '\\n' ' '\n")
     script_file.write(f"echo \"{file_name} is done!\" >> result_add_update.txt\n\n")
         
 #======================Delete======================#
@@ -102,18 +105,18 @@ def createQueryForDelete(file_name, script_file, count, size):
             "\n"
         ]
         file.write("\n".join(ldif))
-        readQuery.write(f"ldapsearch -H ldap://192.168.40.20 -x -D \"CN=administrator,CN=Users,DC=test-example,DC=tst\" -w qqqwww12! -b \"dc=test-example,dc=tst\" \"(cn=user_{i})\"\n")
+        readQuery.write(f"ldapsearch -H ldap://{ip} -x -D \"CN=administrator,CN=Users,DC={DC1},DC={DC2}\" -w qqqwww12! -b \"DC={DC1},DC={DC2}\" \"(cn=user_{i})\"\n")
     file.close()
     #update
     queryModifyBeforeDelete(file_name, script_file, count, size)
-    script_file.write("{ time ldapmodify -H ldap://192.168.40.20 -x -D \"CN=administrator,CN=Users,DC=test-example,DC=tst\" -w qqqwww12! -f " + file_name + "_del_update.ldif > /dev/null; } 2>> result_delete_update.txt | tr '\\n' ' '\n")
+    script_file.write(f"{{ time ldapmodify -H ldap://{ip} -x -D \"CN=administrator,CN=Users,DC={DC1},DC={DC2}\" -w qqqwww12! -f " + file_name + "_del_update.ldif > /dev/null; } 2>> result_delete_update.txt | tr '\\n' ' '\n")
     script_file.write(f"echo \"{file_name} is done!\" >> result_delete_update.txt\n")
     #read
     script_file.write(f"chmod +x {file_name}_read_before_delete.sh\ntime ./{file_name}_read_before_delete.sh >> result_delete_read.txt\n")
     script_file.write(f"{{ time ./{file_name}_read_before_delete.sh 1>/dev/null; }} 2>> result_delete_read.txt\n")
     script_file.write(f"echo \"{file_name} is done!\" >> result_delete_read.txt\n")
     #delete
-    script_file.write("{ time ldapmodify -H ldap://192.168.40.20 -x -D \"CN=administrator,CN=Users,DC=test-example,DC=tst\" -w qqqwww12! -f " + file_name + "_delete.ldif > /dev/null; } 2>> result_delete.txt | tr '\\n' ' '\n" )
+    script_file.write(f"{{ time ldapmodify -H ldap://{ip} -x -D \"CN=administrator,CN=Users,DC={DC1},DC={DC2}\" -w qqqwww12! -f " + file_name + "_delete.ldif > /dev/null; } 2>> result_delete.txt | tr '\\n' ' '\n" )
     script_file.write(f"echo \"{file_name} is done!\" >> result_delete.txt\n\n")
 
 
