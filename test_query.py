@@ -14,7 +14,7 @@ for a in Domain.split("."):
 #=======================Update====================#
 
 def queryModifyAfterAdd(file_name, script_file, count, size):
-    file = open(file_name+"_update.ldif", 'w')
+    file = open(file_name+"_add_update.ldif", 'w')
     for i in range(count, size):
         ldif = [
             f"dn: CN=user_{i},{domain_dn}",
@@ -27,7 +27,7 @@ def queryModifyAfterAdd(file_name, script_file, count, size):
     file.close()
 
 def queryModifyBeforeDelete(file_name, script_file, count, size):
-    file = open(file_name+"_update.ldif", 'w')
+    file = open(file_name+"_del_update.ldif", 'w')
     for i in range(count, size):
         ldif = [
             f"dn: CN=user_{i},{domain_dn}",
@@ -79,15 +79,15 @@ def createQueryForAdd(file_name, script_file, count, size):
         readQuery.write(f"ldapsearch -H ldap://192.168.40.20 -x -D \"CN=administrator,CN=Users,DC=test-example,DC=tst\" -w qqqwww12! -b \"dc=test-example,dc=tst\" \"(cn=user_{i})\"\n")
     file.close()
     #add
-    script_file.write("{ time ldbadd -H ldap://192.168.40.20 -U administrator --password=qqqwww12! " + file_name + "_add.ldif; } 2>> result_add_data.txt | tr '\\n' ' '\n")
+    script_file.write("{ time ldbadd -H ldap://192.168.40.20 -U administrator --password=qqqwww12! " + file_name + "_add.ldif; } 2>> result_add.txt | tr '\\n' ' '\n")
     script_file.write(f"echo \"{file_name} is done!\" >> result_add.txt\n")
     #read
     script_file.write( f"chmod +x {file_name}_read_after_add.sh\ntime ./{file_name}_read_after_add.sh >> result_add_read.txt\n")
     script_file.write(f"echo \"{file_name} is done!\" >> result_add_read.txt\n")
     #update
     queryModifyAfterAdd(file_name, script_file, count, size)
-    script_file.write("{ time ldapmodify -H ldap://192.168.40.20 -x -D \"CN=administrator,CN=Users,DC=example,DC=tst\" -w qqqwww12! -f " + file_name + "_update.ldif > /dev/null; } 2>> result_update_data.txt | tr '\\n' ' '\n")
-    script_file.write(f"echo \"{file_name} is done!\" >> result_update.txt\n")
+    script_file.write("{ time ldapmodify -H ldap://192.168.40.20 -x -D \"CN=administrator,CN=Users,DC=example,DC=tst\" -w qqqwww12! -f " + file_name + "_add_update.ldif > /dev/null; } 2>> result_add_update.txt | tr '\\n' ' '\n")
+    script_file.write(f"echo \"{file_name} is done!\" >> result_add_update.txt\n")
         
 #======================Delete======================#
 
@@ -105,13 +105,13 @@ def createQueryForDelete(file_name, script_file, count, size):
     file.close()
     #update
     queryModifyBeforeDelete(file_name, script_file, count, size)
-    script_file.write("{ time ldapmodify -H ldap://192.168.40.20 -x -D \"CN=administrator,CN=Users,DC=example,DC=tst\" -w qqqwww12! -f " + file_name + "_update.ldif > /dev/null; } 2>> result_update_data.txt | tr '\\n' ' '\n")
-    script_file.write(f"echo \"{file_name} is done!\" >> result_update.txt\n")
+    script_file.write("{ time ldapmodify -H ldap://192.168.40.20 -x -D \"CN=administrator,CN=Users,DC=example,DC=tst\" -w qqqwww12! -f " + file_name + "_del_update.ldif > /dev/null; } 2>> result_delete_update.txt | tr '\\n' ' '\n")
+    script_file.write(f"echo \"{file_name} is done!\" >> result_delete_update.txt\n")
     #read
-    script_file.write(f"chmod +x {file_name}_read_before_delete.sh\ntime ./{file_name}_read_before_delete.sh >> result_del_read.txt\n")
-    script_file.write(f"echo \"{file_name} is done!\" >> result_del_read.txt\n")
+    script_file.write(f"chmod +x {file_name}_read_before_delete.sh\ntime ./{file_name}_read_before_delete.sh >> result_delete_read.txt\n")
+    script_file.write(f"echo \"{file_name} is done!\" >> result_delete_read.txt\n")
     #delete
-    script_file.write("{ time ldapmodify -H ldap://192.168.40.20 -x -D \"CN=administrator,CN=Users,DC=example,DC=tst\" -w qqqwww12! -f " + file_name + "_delete.ldif > /dev/null; } 2>> result_delete_data.txt | tr '\\n' ' '\n" )
+    script_file.write("{ time ldapmodify -H ldap://192.168.40.20 -x -D \"CN=administrator,CN=Users,DC=example,DC=tst\" -w qqqwww12! -f " + file_name + "_delete.ldif > /dev/null; } 2>> result_delete.txt | tr '\\n' ' '\n" )
     script_file.write(f"echo \"{file_name} is done!\" >> result_delete.txt\n")
 
 
@@ -120,12 +120,12 @@ script_add_file = open("add.sh", 'w')
 script_add_file.write("#!/bin/bash\n")
 script_add_file.write("touch result_add.txt\n")
 script_add_file.write("touch result_add_read.txt\n")
-script_add_file.write("touch result_update.txt\n")
+script_add_file.write("touch result_add_update.txt\n")
 #=====================================================#
 script_del_file = open("delete.sh", 'w')
 script_del_file.write("#!/bin/bash\n")
-script_del_file.write("touch result_update.txt\n")
-script_del_file.write("touch result_del_read.txt\n")
+script_del_file.write("touch result_delete_update.txt\n")
+script_del_file.write("touch result_delete_read.txt\n")
 script_del_file.write("touch result_delete.txt\n")
 
 сount_record = int(input("Write count records:"))
