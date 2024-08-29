@@ -133,14 +133,20 @@ script_del_file.write("touch result_delete_read.txt\n")
 script_del_file.write("touch result_delete.txt\n")
 
 сount_record = int(input("Write count records:"))
+init_value = int(input("Write start value (Exp user_1, user_1000):"))
 step = int(input("Write step:"))
 
-for current_value in range(1,сount_record, step):
+for current_value in range(init_value,сount_record, step):
     fullName = FileName+"_"+str(current_value)+"-"+str(current_value+step-1 )
     createQueryForAdd( fullName, script_add_file, current_value, current_value+step )
-    createQueryForDelete( fullName, script_del_file, current_value, current_value+step )
 
-print("LDAP requests have been created!")
+print("LDAP requests for add have been created!")
+
+for current_value in range(init_value,сount_record, step):
+    fullName = FileName + "_" + str(current_value) + "-" + str(current_value + step - 1)
+    createQueryForDelete(fullName, script_del_file, current_value, current_value + step)
+
+print("LDAP requests for delete have been created!")
 
 script_add_file.write("nohup ./delete.sh\nexit")
 script_add_file.close()
